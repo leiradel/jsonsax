@@ -25,7 +25,7 @@ To use JSON SAX, just implement your event handlers:
 
 and pass then to `jsonsax_parse` along with your in-memory JSON document:
 
-  int jsonsax_parse( const char* json, const jsonsax_handlers_t* handlers, void* userdata );
+    int jsonsax_parse( const char* json, const jsonsax_handlers_t* handlers, void* userdata );
 
 `jsonsax_parse` returns one of the following values:
 
