@@ -6,22 +6,22 @@ Streamming APIs are great when the entire document tree is too big to maintain i
 
 To use JSON SAX, just implement your event handlers:
 
-  typedef struct
-  {
-    int ( *start_document )( void* userdata );
-    int ( *end_document )( void* userdata );
-    int ( *start_object )( void* userdata );
-    int ( *end_object )( void* userdata );
-    int ( *start_array )( void* userdata );
-    int ( *end_array )( void* userdata );
-    int ( *key )( void* userdata, const char* name, size_t length );
-    int ( *index )( void* userdata, unsigned int index );
-    int ( *string )( void* userdata, const char* string, size_t length );
-    int ( *number )( void* userdata, const char* number, size_t length );
-    int ( *boolean )( void* userdata, int istrue );
-    int ( *null )( void* userdata );
-  }
-  jsonsax_handlers_t;
+    typedef struct
+    {
+      int ( *start_document )( void* userdata );
+      int ( *end_document )( void* userdata );
+      int ( *start_object )( void* userdata );
+      int ( *end_object )( void* userdata );
+      int ( *start_array )( void* userdata );
+      int ( *end_array )( void* userdata );
+      int ( *key )( void* userdata, const char* name, size_t length );
+      int ( *index )( void* userdata, unsigned int index );
+      int ( *string )( void* userdata, const char* string, size_t length );
+      int ( *number )( void* userdata, const char* number, size_t length );
+      int ( *boolean )( void* userdata, int istrue );
+      int ( *null )( void* userdata );
+    }
+    jsonsax_handlers_t;
 
 and pass then to `jsonsax_parse` along with your in-memory JSON document:
 
@@ -29,18 +29,18 @@ and pass then to `jsonsax_parse` along with your in-memory JSON document:
 
 `jsonsax_parse` returns one of the following values:
 
-  enum
-  {
-    JSONSAX_OK = 0,
-    JSONSAX_INTERRUPTED,
-    JSONSAX_MISSING_KEY,
-    JSONSAX_UNTERMINATED_KEY,
-    JSONSAX_MISSING_VALUE,
-    JSONSAX_UNTERMINATED_OBJECT,
-    JSONSAX_UNTERMINATED_ARRAY,
-    JSONSAX_UNTERMINATED_STRING,
-    JSONSAX_INVALID_VALUE
-  };
+    enum
+    {
+      JSONSAX_OK = 0,
+      JSONSAX_INTERRUPTED,
+      JSONSAX_MISSING_KEY,
+      JSONSAX_UNTERMINATED_KEY,
+      JSONSAX_MISSING_VALUE,
+      JSONSAX_UNTERMINATED_OBJECT,
+      JSONSAX_UNTERMINATED_ARRAY,
+      JSONSAX_UNTERMINATED_STRING,
+      JSONSAX_INVALID_VALUE
+    };
 
 If an event handler returns a value different from zero, the parsing stops and `json_parse` returns `JSONSAX_INTERRUPTED`. The meaning of each event handler is:
 
