@@ -1,0 +1,7 @@
+*.[oa]
+*.exe
+*.dll
+*.so
+*~
+rl_version.c
+boot_lua.h
