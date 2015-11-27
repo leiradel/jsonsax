@@ -1,6 +1,10 @@
 #ifndef JSONSAX_H
 #define JSONSAX_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stddef.h>
 
 enum
@@ -38,5 +42,9 @@ typedef struct
 jsonsax_handlers_t;
 
 int jsonsax_parse( const char* json, const jsonsax_handlers_t* handlers, void* userdata );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* JSONSAX_H */
