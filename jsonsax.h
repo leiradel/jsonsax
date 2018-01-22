@@ -7,7 +7,7 @@ extern "C" {
 
 #include <stddef.h>
 
-enum
+typedef enum
 {
   JSONSAX_OK = 0,
   JSONSAX_INTERRUPTED,
@@ -18,30 +18,30 @@ enum
   JSONSAX_UNTERMINATED_ARRAY,
   JSONSAX_UNTERMINATED_STRING,
   JSONSAX_INVALID_VALUE
-};
+}
+jsonsax_result_t;
+
+typedef enum
+{
+  JSONSAX_DOCUMENT,
+  JSONSAX_OBJECT,
+  JSONSAX_ARRAY,
+  JSONSAX_KEY,
+  JSONSAX_INDEX,
+  JSONSAX_STRING,
+  JSONSAX_NUMBER,
+  JSONSAX_BOOLEAN,
+  JSONSAX_NULL
+}
+jsonsax_event_t;
+
+typedef int ( *jsonsax_handler_t )( void*, jsonsax_event_t, const char*, size_t );
 
 #ifdef JSONSAX_ERRORS
 extern const char* jsonsax_errors[];
 #endif
 
-typedef struct
-{
-  int ( *start_document )( void* userdata );
-  int ( *end_document )( void* userdata );
-  int ( *start_object )( void* userdata );
-  int ( *end_object )( void* userdata );
-  int ( *start_array )( void* userdata );
-  int ( *end_array )( void* userdata );
-  int ( *key )( void* userdata, const char* name, size_t length );
-  int ( *index )( void* userdata, unsigned int index );
-  int ( *string )( void* userdata, const char* string, size_t length );
-  int ( *number )( void* userdata, const char* number, size_t length );
-  int ( *boolean )( void* userdata, int istrue );
-  int ( *null )( void* userdata );
-}
-jsonsax_handlers_t;
-
-int jsonsax_parse( const char* json, const jsonsax_handlers_t* handlers, void* userdata );
+jsonsax_result_t jsonsax_parse( const char* json, void* userdata, jsonsax_handler_t handler );
 
 #ifdef __cplusplus
 }
