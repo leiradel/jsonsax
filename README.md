@@ -64,7 +64,17 @@ typedef enum
 }
 jsonsax_result_t;
 ```
+
+## Building
+
+Just add `jsonsax.h` and `jsonsax.c` to your project. `jsonsax.c` requires a C99 compiler.
+
 ## Changelog
+
+### 0.3
+
+* Fixed parsing of escape sequences
+* Added a **building** section to the README
 
 ### 0.2
 
