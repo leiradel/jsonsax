@@ -45,6 +45,56 @@ static inline void skip_digits( state_t* state )
   }
 }
 
+static const char* skip_string( state_t* state, size_t* length )
+{
+  const char* string = ++state->json;
+
+find_quote:;
+  const char* quote = strchr( state->json, '"' );
+  
+  if ( !quote )
+  {
+    longjmp( state->env, JSONSAX_UNTERMINATED_STRING );
+  }
+
+find_escape:;  
+  const char* backslash = strchr( state->json, '\\' );
+
+  if ( backslash && backslash < quote )
+  {
+    switch ( *++backslash )
+    {
+    case 'u':
+      for ( int i = 0; i < 4; i++ )
+      {
+        if ( !isxdigit( *++backslash ) )
+        {
+    default:
+          longjmp( state->env, JSONSAX_INVALID_ESCAPE );
+        }
+      }
+
+    case '\\':
+    case '/':
+    case 'b':
+    case 'f':
+    case 'n':
+    case 'r':
+    case 't':
+      state->json = backslash + 1;
+      goto find_escape;
+
+    case '"':
+      state->json = backslash + 1;
+      goto find_quote;
+    }
+  }
+
+  state->json = quote + 1;
+  *length = state->json - string - 1;
+  return string;
+}
+
 #define HANDLE( event, str, num ) \
   do { \
     if ( state->handler( state->ud, event, str, num ) ) \
@@ -66,26 +116,10 @@ static void parse_object( state_t* state )
       longjmp( state->env, JSONSAX_MISSING_KEY );
     }
     
-    const char* name = ++state->json;
+    size_t length;
+    const char* name = skip_string( state, &length );
     
-    for ( ;; )
-    {
-      const char* quote = strchr( state->json, '"' );
-      
-      if ( !quote )
-      {
-        longjmp( state->env, JSONSAX_UNTERMINATED_KEY );
-      }
-      
-      state->json = quote + 1;
-      
-      if ( quote[ -1 ] != '\\' )
-      {
-        break;
-      }
-    }
-    
-    HANDLE( JSONSAX_KEY, name, state->json - name - 1 );
+    HANDLE( JSONSAX_KEY, name, length );
     skip_spaces( state );
     
     if ( *state->json != ':' )
@@ -144,30 +178,6 @@ static void parse_array( state_t* state )
   }
   
   HANDLE( JSONSAX_ARRAY, state->json++, 0 );
-}
-
-static void parse_string( state_t* state )
-{
-  const char* string = ++state->json;
-  
-  for ( ;; )
-  {
-    const char* quote = strchr( state->json, '"' );
-    
-    if ( !quote )
-    {
-      longjmp( state->env, JSONSAX_UNTERMINATED_STRING );
-    }
-    
-    state->json = quote + 1;
-    
-    if ( quote[ -1 ] != '\\' )
-    {
-      break;
-    }
-  }
-  
-  HANDLE( JSONSAX_STRING, string, state->json - string - 1 );
 }
 
 static void parse_boolean( state_t* state )
@@ -251,6 +261,9 @@ static void parse_number( state_t* state )
 
 static void parse_value( state_t* state )
 {
+  const char* string;
+  size_t length;
+
   skip_spaces( state );
   
   switch ( *state->json )
@@ -264,7 +277,8 @@ static void parse_value( state_t* state )
     break;
     
   case '"':
-    parse_string( state );
+    string = skip_string( state, &length );
+    HANDLE( JSONSAX_STRING, string, length );
     break;
     
   case 't':
